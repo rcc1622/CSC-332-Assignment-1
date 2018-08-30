@@ -102,10 +102,8 @@ def generateResults(outpath, pairs, gcds, times, headers=()):
         if headers:
             writer.writerow(headers)
 
-        index = 0
         for a, b, gcd, time in zip(pairs[0], pairs[1], gcds, times):
             writer.writerow((a, b, gcd, time))
-            index += 1
 
 ## Generate an Excel spreadsheet for each algorithm with the following information:
 ## Maximum Time, Minimum Time, Average Time, Median Time
