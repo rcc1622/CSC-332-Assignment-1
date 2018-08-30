@@ -1,23 +1,46 @@
+import sys
+import os
 import random
 import time
+import csv
 
-def main():
+def main(resultDir='results'):
+##  Put all output files in resultDir so the user doesn't have to hunt
+##  for them. If none is given, use a folder called "results" in the
+##  current working directory. If resultDir doesn't exist, create it.
+##  If it exists but isn't empty, do a sanity check.
+    if not os.path.exists(resultDir):
+        os.mkdir(resultDir)
+    elif not os.path.isdir(resultDir):
+        print('error: "{}" is not a directory.'.format(resultDir), file=sys.stderr)
+        sys.exit(1)
+    elif os.listdir(resultDir):
+        print('warning: "{}" is not empty.'.format(resultDir))
+        response = input("Continue? (y/n) ").strip().lower()
+        if response != 'y':
+            sys.exit()
+    ## As long as paths are RELATIVE, all files wind up in resultDir.
+    os.chdir(resultDir)
+
     #Random integer pairs are in a 2D pairsay ([numOne, numTwo])
     pairs = generatePairs(-10000, 10000)
     
-    #gcdsBruteForce, timesBruteForce = calculateBruteForce(pairs)
-    #generateResults(gcdsBruteForce, timesBruteForce)
-    #generateStatistics(timesBruteForce)
+    #gcdsBF, timesBF = calculateBruteForce(pairs)
+    #generateStatistics('Brute_Force_Results.xls', pairs, gcdsBF, timesBF, 
+    #    ('Number One', 'Number Two', 'Their GCD', 'Time Spent (Milliseconds)'))
+    #generateResults(gcdsBF, timesBF)
     
     gcdsEuclid, timesEuclid = calculateEuclid(pairs)
+    generateStatistics('Original_Euclid_Results.xls', pairs, gcdsEuclid, timesEuclid,
+        ('Number One', 'Number Two', 'Their GCD', 'Time Spent (Milliseconds)'))
     #generateResults(gcdsEuclid, timesEuclid)
-    #generateStatistics(timesEuclid)
     
     #gcdsImproved, timesImproved = calculateImproved(pairs)
+    #generateStatistics('Improved_Euclid_Results.xls', pairs, gcdsImproved, timesImproved,
+    #    ('Number One', 'Number Two', 'Their GCD', 'Time Spent (Milliseconds)'))
     #generateResults(gcdsImproved, timesImproved)
-    #generateStatistics(timesImproved)
 
-    #generateConclusion(timesBruteForce, timesEuclid, timesImproved)
+    #generateConclusion(timesBF, timesEuclid, timesImproved)
     
 #Generate 100 pairs of random integers
 def generatePairs(rangeMin, rangeMax):
@@ -67,6 +90,17 @@ def calculateEuclid(pairs):
         times.append(elapsedTime)
 
     return gcds, times
+    
+def generateStatistics(outpath, pairs, gcds, times, headers=()):
+    with open(outpath, mode="wt", encoding="utf-8") as outfile:
+        writer = csv.writer(outfile, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        if headers:
+            writer.writerow(headers)
+
+        index = 0
+        for a, b, gcd, time in zip(pairs[0], pairs[1], gcds, times):
+            writer.writerow((a, b, gcd, time))
+            index += 1
 
 #Calculate the GCD of all pairs using Euclid's Algorithm (Improved)
 #def calculateImproved(pairs):
@@ -130,10 +164,14 @@ def generateConclusion(timesBruteForce, timesEuclid, timesImproved):
     output += "milliseconds."
 
     #Write results to file
-    file = open("Conclusions.txt", "w")
-    file.write(output)
-    file.close()
-    print("Conclusions.txt successfully created.")
+    with open("Conclusions.txt", mode="wt", encoding="utf-8") as outfile:
+        outfile.write(output)
+        print("Conclusions.txt successfully created.")
     
 if __name__ == "__main__":
-    main()
+##  Treat the first command-line argument as the destination for generated files.
+    try:
+        resultDir = sys.argv[1]
+        main(resultDir)
+    except IndexError:
+        main()
