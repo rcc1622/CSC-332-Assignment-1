@@ -12,46 +12,46 @@ def main(resultDir='results'):
     if not os.path.exists(resultDir):
         os.mkdir(resultDir)
     elif not os.path.isdir(resultDir):
-        print('error: "{}" is not a directory.'.format(resultDir), file=sys.stderr)
+        print('Error: "{}" is not a directory.'.format(resultDir), file=sys.stderr)
         sys.exit(1)
     elif os.listdir(resultDir):
-        print('warning: "{}" is not empty.'.format(resultDir))
+        print('Warning: "{}" is not empty.'.format(resultDir))
         response = input("Continue? (y/n) ").strip().lower()
         if response != 'y':
             sys.exit()
-    ## As long as paths are RELATIVE, all files wind up in resultDir.
+    ##  As long as paths are RELATIVE, all files wind up in resultDir.
     os.chdir(resultDir)
 
-    #Random integer pairs are in a 2D pairsay ([numOne, numTwo])
+    ## Random integer pairs are in a 2D array ([numOne, numTwo])
     pairs = generatePairs(-10000, 10000)
     
     #gcdsBF, timesBF = calculateBruteForce(pairs)
-    #generateStatistics('Brute_Force_Results.xls', pairs, gcdsBF, timesBF, 
+    #generateResults('Brute_Force_Results.csv', pairs, gcdsBF, timesBF, 
     #    ('Number One', 'Number Two', 'Their GCD', 'Time Spent (Milliseconds)'))
-    #generateResults(gcdsBF, timesBF)
+    #generateStatistics(gcdsBF, timesBF)
     
     gcdsEuclid, timesEuclid = calculateEuclid(pairs)
-    generateStatistics('Original_Euclid_Results.xls', pairs, gcdsEuclid, timesEuclid,
+    generateResults('Original_Euclid_Results.csv', pairs, gcdsEuclid, timesEuclid,
         ('Number One', 'Number Two', 'Their GCD', 'Time Spent (Milliseconds)'))
-    #generateResults(gcdsEuclid, timesEuclid)
+    #generateStatistics(gcdsEuclid, timesEuclid)
     
     #gcdsImproved, timesImproved = calculateImproved(pairs)
-    #generateStatistics('Improved_Euclid_Results.xls', pairs, gcdsImproved, timesImproved,
+    #generateResults('Improved_Euclid_Results.csv', pairs, gcdsImproved, timesImproved,
     #    ('Number One', 'Number Two', 'Their GCD', 'Time Spent (Milliseconds)'))
-    #generateResults(gcdsImproved, timesImproved)
+    #generateStatistics(gcdsImproved, timesImproved)
 
     #generateConclusion(timesBF, timesEuclid, timesImproved)
     
-#Generate 100 pairs of random integers
+## Generate 100 pairs of random integers
 def generatePairs(rangeMin, rangeMax):
     numOne = random.sample(range(rangeMin, rangeMax), 100)
     numTwo = random.sample(range(rangeMin, rangeMax), 100)
     return [numOne, numTwo]
 
-#Calculate the GCD of all pairs using the Brute Force Algorithm
+## Calculate the GCD of all pairs using the Brute Force Algorithm
 #def calculateBruteForce(pairs):
 
-#Calculate the GCD of all pairs using Euclid's Algorithm
+## Calculate the GCD of all pairs using Euclid's Algorithm
 def calculateEuclid(pairs):
     gcds = []
     times = []
@@ -90,9 +90,14 @@ def calculateEuclid(pairs):
         times.append(elapsedTime)
 
     return gcds, times
-    
-def generateStatistics(outpath, pairs, gcds, times, headers=()):
-    with open(outpath, mode="wt", encoding="utf-8") as outfile:
+
+## Calculate the GCD of all pairs using Euclid's Algorithm (Improved)
+#def calculateImproved(pairs):
+
+## Generate an Excel spreadsheet for each algorithm with the following information:
+## Number One, Number Two, Their GCD, Time Spent (Milliseconds)
+def generateResults(outpath, pairs, gcds, times, headers=()):
+    with open(outpath, mode="wt", encoding="utf-8", newline='') as outfile:
         writer = csv.writer(outfile, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)
         if headers:
             writer.writerow(headers)
@@ -102,28 +107,21 @@ def generateStatistics(outpath, pairs, gcds, times, headers=()):
             writer.writerow((a, b, gcd, time))
             index += 1
 
-#Calculate the GCD of all pairs using Euclid's Algorithm (Improved)
-#def calculateImproved(pairs):
-    
-#Generate an Excel spreadsheet for each algorithm with the following columns for each pair:
-#Number One, Number Two, Their GCD, Time Spent
-#def generateResults(gcds, times):
+## Generate an Excel spreadsheet for each algorithm with the following information:
+## Maximum Time, Minimum Time, Average Time, Median Time
+#def generateStatistics(gcds, times):
 
-#Generate an Excel spreadsheet for each algorithm with the following information:
-#Maximum Time, Minimum Time, Average Time, Median Time
-#def generateStatistics(times):
-
-#Determine how the algorithms performed against each other and save results to Conclusions.txt
-def generateConclusion(timesBruteForce, timesEuclid, timesImproved):
+## Determine how the algorithms performed against each other and save results to Conclusions.txt
+def generateConclusion(timesBF, timesEuclid, timesImproved):
     output = ""
     
-    #Compare Euclid's Algorithm with the Brute Force Algorithm
+    ## Compare Euclid's Algorithm with the Brute Force Algorithm
     count = 0
     savedTime = 0
     
     for x in range(100):
-        if timesEuclid[x] < timesBruteForce[x]:
-            savedTime += (timesBruteForce[x] - timesEuclid[x])
+        if timesEuclid[x] < timesBF[x]:
+            savedTime += (timesBF[x] - timesEuclid[x])
             count += 1
 
     avgSavedTime = savedTime/count
@@ -133,13 +131,13 @@ def generateConclusion(timesBruteForce, timesEuclid, timesImproved):
     output += "milliseconds.\n"
         
     
-    #Compare Euclid's Algorithm (Improved) with the Brute Force Algorithm
+    ## Compare Euclid's Algorithm (Improved) with the Brute Force Algorithm
     count = 0
     savedTime = 0
 
     for x in range(100):
-        if timesImproved[x] < timesBruteForce[x]:
-            savedTime += (timesBruteForce[x] - timesImproved[x])
+        if timesImproved[x] < timesBF[x]:
+            savedTime += (timesBF[x] - timesImproved[x])
             count += 1
 
     avgSavedTime = savedTime/count
@@ -148,7 +146,7 @@ def generateConclusion(timesBruteForce, timesEuclid, timesImproved):
     output += "saved time for these %s pairs of integers was %s " % (count,avgSavedTime)
     output += "milliseconds.\n"
 
-    #Compare Euclid's Algorithm (Improved) with Euclid's Algorithm
+    ## Compare Euclid's Algorithm (Improved) with Euclid's Algorithm
     count = 0
     savedTime = 0
 
@@ -163,11 +161,11 @@ def generateConclusion(timesBruteForce, timesEuclid, timesImproved):
     output += "saved time for these %s pairs of integers was %s " % (count,avgSavedTime)
     output += "milliseconds."
 
-    #Write results to file
+    ## Write results to file
     with open("Conclusions.txt", mode="wt", encoding="utf-8") as outfile:
         outfile.write(output)
         print("Conclusions.txt successfully created.")
-    
+
 if __name__ == "__main__":
 ##  Treat the first command-line argument as the destination for generated files.
     try:
