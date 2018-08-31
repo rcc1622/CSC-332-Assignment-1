@@ -24,10 +24,10 @@ def main(resultDir='results'):
 
     ## Random integer pairs are in a 2D array ([numOne, numTwo])
     pairs = generatePairs(-10000, 10000)
-    
-    #gcdsBF, timesBF = calculateBruteForce(pairs)
-    #generateResults('Brute_Force_Results.csv', pairs, gcdsBF, timesBF, 
-    #    ('Number One', 'Number Two', 'Their GCD', 'Time Spent (Milliseconds)'))
+
+    gcdsBF, timesBF = calculateBruteForce(pairs)
+    generateResults('Brute_Force_Results.csv', pairs, gcdsBF, timesBF, 
+        ('Number One', 'Number Two', 'Their GCD', 'Time Spent (Milliseconds)'))
     #generateStatistics(gcdsBF, timesBF)
     
     gcdsEuclid, timesEuclid = calculateEuclid(pairs)
@@ -49,7 +49,30 @@ def generatePairs(rangeMin, rangeMax):
     return [numOne, numTwo]
 
 ## Calculate the GCD of all pairs using the Brute Force Algorithm
-#def calculateBruteForce(pairs):
+def calculateBruteForce(pairs):
+    gcds = []
+    times = []
+    
+    for x in range(100):
+        startTime = time.time()
+        y = max(abs(pairs[0][x]), abs(pairs[1][x]))
+        z = min(abs(pairs[0][x]), abs(pairs[1][x]))
+
+        if y == 0:
+            gcds.append(z)
+        elif z == 0:
+            gcds.append(y)
+        else:
+            for c in range(z, 0, -1):
+                if y % c == 0 and z % c == 0:
+                    gcds.append(c)
+                    break
+
+        print("The GCD of ", pairs[0][x], " and ", pairs[1][x],  "is ",  gcds[x])                
+        elapsedTime = (time.time() - startTime) * 1000
+        times.append(elapsedTime)
+    
+    return gcds, times
 
 ## Calculate the GCD of all pairs using Euclid's Algorithm
 def calculateEuclid(pairs):
@@ -57,22 +80,18 @@ def calculateEuclid(pairs):
     times = []
     
     for x in range(100):
+        startTime = time.time()
         a = abs(pairs[0][x])
         b = abs(pairs[1][x])
-        startTime = time.time()
         
         if a == 0:
             gcds.append(b)
-            print("The GCD of ", pairs[0][x], " and ", pairs[1][x],  "is ",  b)
         elif b == 0:
             gcds.append(a)
-            print("The GCD of ", pairs[0][x], " and ", pairs[1][x],  "is ",  a)
         elif a == 1:
             gcds.append(a)
-            print("The GCD of ", pairs[0][x], " and ", pairs[1][x],  "is ",  a)
         elif b == 1:
             gcds.append(b)
-            print("The GCD of ", pairs[0][x], " and ", pairs[1][x],  "is ",  b)
         else:
             y = max(a, b)
             z = min(a, b)
@@ -84,8 +103,8 @@ def calculateEuclid(pairs):
                 z = remainder
                 
             gcds.append(y)
-            print("The GCD of ", pairs[0][x], " and ", pairs[1][x],  "is ",  y)
 
+        print("The GCD of ", pairs[0][x], " and ", pairs[1][x],  "is ",  gcds[x])
         elapsedTime = (time.time() - startTime) * 1000
         times.append(elapsedTime)
 
