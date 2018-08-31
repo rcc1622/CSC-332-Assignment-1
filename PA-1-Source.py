@@ -4,7 +4,7 @@ import random
 import time
 import csv
 
-def main(resultDir='results'):
+def main(resultDir="results"):
 ##  Put all output files in resultDir so the user doesn't have to hunt
 ##  for them. If none is given, use a folder called "results" in the
 ##  current working directory. If resultDir doesn't exist, create it.
@@ -12,10 +12,10 @@ def main(resultDir='results'):
     if not os.path.exists(resultDir):
         os.mkdir(resultDir)
     elif not os.path.isdir(resultDir):
-        print('Error: "{}" is not a directory.'.format(resultDir), file=sys.stderr)
+        print("Error: \"{}\" is not a directory.".format(resultDir), file=sys.stderr)
         sys.exit(1)
     elif os.listdir(resultDir):
-        print('Warning: "{}" is not empty.'.format(resultDir))
+        print("Warning: \"{}\" is not empty.".format(resultDir))
         response = input("Continue? (y/n) ").strip().lower()
         if response != 'y':
             sys.exit()
@@ -26,21 +26,27 @@ def main(resultDir='results'):
     pairs = generatePairs(-10000, 10000)
 
     gcdsBF, timesBF = calculateBruteForce(pairs)
-    generateResults('Brute_Force_Results.csv', pairs, gcdsBF, timesBF, 
-        ('Number One', 'Number Two', 'Their GCD', 'Time Spent (Milliseconds)'))
+    generateResults("Brute_Force_Results.csv", pairs, gcdsBF, timesBF, 
+        ("Number One", "Number Two", "Their GCD", "Time Spent (Milliseconds)"))
     #generateStatistics(gcdsBF, timesBF)
     
     gcdsEuclid, timesEuclid = calculateEuclid(pairs)
     generateResults('Original_Euclid_Results.csv', pairs, gcdsEuclid, timesEuclid,
-        ('Number One', 'Number Two', 'Their GCD', 'Time Spent (Milliseconds)'))
+        ("Number One", "Number Two", "Their GCD", "Time Spent (Milliseconds)"))
     #generateStatistics(gcdsEuclid, timesEuclid)
     
     #gcdsImproved, timesImproved = calculateImproved(pairs)
-    #generateResults('Improved_Euclid_Results.csv', pairs, gcdsImproved, timesImproved,
-    #    ('Number One', 'Number Two', 'Their GCD', 'Time Spent (Milliseconds)'))
+    #generateResults("Improved_Euclid_Results.csv", pairs, gcdsImproved, timesImproved,
+    #    ("Number One", "Number Two", "Their GCD", "Time Spent (Milliseconds)"))
     #generateStatistics(gcdsImproved, timesImproved)
 
     #generateConclusion(timesBF, timesEuclid, timesImproved)
+
+    ##TODO: Add improved time
+    print("\n Number1  Number2    GCD        Time(BF)     Time(Euclid)")
+    for x in range(100):
+        print("{:8} {:8} {:6} {:12} ms {:12} ms".format(pairs[0][x], pairs[1][x], gcdsBF[x], timesBF[x],
+                                               timesEuclid[x]))
     
 ## Generate 100 pairs of random integers
 def generatePairs(rangeMin, rangeMax):
@@ -54,7 +60,7 @@ def calculateBruteForce(pairs):
     times = []
     
     for x in range(100):
-        startTime = time.time()
+        startTime = time.perf_counter_ns()
         y = max(abs(pairs[0][x]), abs(pairs[1][x]))
         z = min(abs(pairs[0][x]), abs(pairs[1][x]))
 
@@ -67,9 +73,8 @@ def calculateBruteForce(pairs):
                 if y % c == 0 and z % c == 0:
                     gcds.append(c)
                     break
-
-        print("The GCD of ", pairs[0][x], " and ", pairs[1][x],  "is ",  gcds[x])                
-        elapsedTime = (time.time() - startTime) * 1000
+               
+        elapsedTime = (time.perf_counter_ns() - startTime) / 1000000
         times.append(elapsedTime)
     
     return gcds, times
@@ -80,7 +85,7 @@ def calculateEuclid(pairs):
     times = []
     
     for x in range(100):
-        startTime = time.time()
+        startTime = time.perf_counter_ns()
         a = abs(pairs[0][x])
         b = abs(pairs[1][x])
         
@@ -104,8 +109,7 @@ def calculateEuclid(pairs):
                 
             gcds.append(y)
 
-        print("The GCD of ", pairs[0][x], " and ", pairs[1][x],  "is ",  gcds[x])
-        elapsedTime = (time.time() - startTime) * 1000
+        elapsedTime = (time.perf_counter_ns() - startTime) / 1000000
         times.append(elapsedTime)
 
     return gcds, times
@@ -117,7 +121,7 @@ def calculateEuclid(pairs):
 ## Number One, Number Two, Their GCD, Time Spent (Milliseconds)
 def generateResults(outpath, pairs, gcds, times, headers=()):
     with open(outpath, mode="wt", encoding="utf-8", newline='') as outfile:
-        writer = csv.writer(outfile, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        writer = csv.writer(outfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         if headers:
             writer.writerow(headers)
 
